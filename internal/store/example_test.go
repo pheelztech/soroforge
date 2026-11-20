@@ -169,3 +169,14 @@ func ExampleParseSnapshot() {
 	// first deployment: 1 deploy counter ledger 4500
 	// history: unsupported format version 2 (this build reads version 1)
 }
+
+// ExampleSanitizeKeyMaterial shows a secret seed being redacted from error
+// text before it is recorded, while public identifiers are left untouched.
+func ExampleSanitizeKeyMaterial() {
+	seed := "SAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+	msg := "signing with " + seed + " failed for GBRPYHIL2CI3FNQ4BXLFMNDLFJUNPU2HY3ZMFSHONUCEOASW7QC7OX2H"
+
+	fmt.Println(store.SanitizeKeyMaterial(msg))
+	// Output:
+	// signing with [REDACTED-SECRET-KEY] failed for GBRPYHIL2CI3FNQ4BXLFMNDLFJUNPU2HY3ZMFSHONUCEOASW7QC7OX2H
+}
