@@ -65,7 +65,7 @@ func TestDeploymentValidateRejectsInvalidAction(t *testing.T) {
 }
 
 func TestDeploymentValidateAcceptsValidRecords(t *testing.T) {
-	for _, action := range []store.Action{store.ActionDeploy, store.ActionUpgrade, store.ActionInvoke} {
+	for _, action := range []store.Action{store.ActionDeploy, store.ActionUpgrade, store.ActionInvoke, store.ActionTrack, store.ActionExtend, store.ActionRestore} {
 		t.Run(string(action), func(t *testing.T) {
 			d := validDeployment()
 			d.Action = action

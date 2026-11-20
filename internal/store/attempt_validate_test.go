@@ -81,6 +81,8 @@ func TestAttemptValidateAcceptsEveryValidCombination(t *testing.T) {
 		store.ActionUpload,
 		store.ActionInvoke,
 		store.ActionTrack,
+		store.ActionExtend,
+		store.ActionRestore,
 	} {
 		for _, stage := range []store.AttemptStage{
 			store.AttemptSimulate,
