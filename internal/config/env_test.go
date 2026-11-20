@@ -443,6 +443,27 @@ func TestHasSigningKey(t *testing.T) {
 	assert.True(t, Env{SignerCommand: "/bin/sign", SignerPublicKey: "GABC"}.HasSigningKey())
 }
 
+func TestHasSigningKeyEdgeCases(t *testing.T) {
+	tests := map[string]struct {
+		env  Env
+		want bool
+	}{
+		// A public key identifies a signer but cannot sign on its own.
+		"public key only": {env: Env{SignerPublicKey: "GABC"}, want: false},
+		// Co-signers sign alongside a primary key, never instead of it.
+		"cosigner keystores only": {env: Env{CosignerKeystores: "/keys/cosigner"}, want: false},
+		// A command counts as a key source even before ValidateSigningConfig
+		// has checked that its public key is present.
+		"signer command without public key": {env: Env{SignerCommand: "/bin/sign"}, want: true},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.want, tc.env.HasSigningKey())
+		})
+	}
+}
+
 func TestValidateSigningConfig(t *testing.T) {
 	tests := map[string]struct {
 		env     Env
@@ -475,6 +496,17 @@ func TestValidateSigningConfig(t *testing.T) {
 		"external signer and a keystore": {
 			env:     Env{SignerCommand: "/usr/local/bin/sign", SignerPublicKey: "GABC", KeystorePath: "/k"},
 			wantErr: "cannot be combined",
+		},
+		"cosigners without a primary key": {
+			env:     Env{CosignerKeystores: "/keys/cosigner"},
+			wantErr: EnvCosignerKeystores,
+		},
+		"cosigners alongside an external signer": {
+			env: Env{CosignerKeystores: "/keys/cosigner", SignerCommand: "/usr/local/bin/sign", SignerPublicKey: "GABC"},
+		},
+		"public key next to a seed but no command": {
+			env:     Env{SecretKey: "SABC", SignerPublicKey: "GABC"},
+			wantErr: EnvSignerCommand,
 		},
 	}
 
